@@ -11,6 +11,7 @@ import { S4Caliber } from "./scenes/S4Caliber";
 import { S5Trace } from "./scenes/S5Trace";
 import { S6CTA } from "./scenes/S6CTA";
 import { Cover } from "./scenes/Cover";
+import { Cover43 } from "./scenes/Cover43";
 import { S1HookV } from "./scenes/vertical/S1HookV";
 import { S2RevealV } from "./scenes/vertical/S2RevealV";
 import { S3PipelineV } from "./scenes/vertical/S3PipelineV";
@@ -92,6 +93,14 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={1280}
         height={720}
+      />
+      <Composition
+        id="Cover43"
+        component={Cover43}
+        durationInFrames={1}
+        fps={30}
+        width={1600}
+        height={1200}
       />
 
       <Folder name="竖版分镜">
