@@ -12,3 +12,6 @@ desktop.ini
 .idea/
 .vscode/
 *.swp
+
+# Local security-scanner artifacts (Mimosa)
+.mimosa/
