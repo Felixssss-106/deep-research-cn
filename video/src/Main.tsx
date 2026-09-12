@@ -13,7 +13,7 @@ import { S6CTA } from "./scenes/S6CTA";
 // 每景时长 = 旁白实测时长 + 入场与读秒余量（1200 → 1185 帧 ≈ 39.5s）
 const Vo: React.FC<{ name: string; from?: number }> = ({ name, from = 6 }) => (
   <Sequence from={from} layout="none">
-    <Audio src={staticFile(`narration/${name}.wav`)} />
+    <Audio src={staticFile(`narration/${name}.mp3`)} />
   </Sequence>
 );
 
@@ -23,37 +23,35 @@ const Vo: React.FC<{ name: string; from?: number }> = ({ name, from = 6 }) => (
 const t = () => springTiming({ config: { damping: 200, stiffness: 120 }, durationInFrames: 18 });
 const cross = () => fade();
 
-// 苏打（MiMo-V2.5-TTS）旁白实测：8.80/7.84/7.36/7.52/6.56/9.92s
-// 各景 = max(节拍下限, ceil((旁白+1.0s)*30/15)*15)；总长 = 1665 - 5×18 = 1575 帧（52.5s）
 export const Main: React.FC = () => {
   return (
     <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={300}>
+      <TransitionSeries.Sequence durationInFrames={240}>
         <S1Hook />
         <Vo name="s1" />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={cross()} timing={t()} />
-      <TransitionSeries.Sequence durationInFrames={270}>
+      <TransitionSeries.Sequence durationInFrames={180}>
         <S2Reveal />
         <Vo name="s2" />
       </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={cross()} timing={t()} />
-      <TransitionSeries.Sequence durationInFrames={255}>
+      <TransitionSeries.Transition presentation={fade()} timing={t()} />
+      <TransitionSeries.Sequence durationInFrames={195}>
         <S3Pipeline />
         <Vo name="s3" from={8} />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={cross()} timing={t()} />
-      <TransitionSeries.Sequence durationInFrames={255}>
+      <TransitionSeries.Sequence durationInFrames={225}>
         <S4Caliber />
         <Vo name="s4" />
       </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={cross()} timing={t()} />
-      <TransitionSeries.Sequence durationInFrames={240}>
+      <TransitionSeries.Transition presentation={fade()} timing={t()} />
+      <TransitionSeries.Sequence durationInFrames={195}>
         <S5Trace />
         <Vo name="s5" />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={cross()} timing={t()} />
-      <TransitionSeries.Sequence durationInFrames={330}>
+      <TransitionSeries.Sequence durationInFrames={240}>
         <S6CTA />
         <Vo name="s6" />
       </TransitionSeries.Sequence>
