@@ -38,8 +38,8 @@ export const S6CTA: React.FC = () => {
     extrapolateRight: "clamp",
   });
 
-  // 结尾淡出至黑（全片收束）
-  const fade = interpolate(frame, [226, 240], [1, 0], {
+  // 结尾淡出至黑（全片收束；S6 已扩到 330 帧，淡出窗口随之前移）
+  const fade = interpolate(frame, [316, 330], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });

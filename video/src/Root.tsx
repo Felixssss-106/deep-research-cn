@@ -31,7 +31,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S1Hook"
           component={S1Hook}
-          durationInFrames={240}
+          durationInFrames={300}
           fps={30}
           width={1920}
           height={1080}
@@ -39,7 +39,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S2Reveal"
           component={S2Reveal}
-          durationInFrames={180}
+          durationInFrames={270}
           fps={30}
           width={1920}
           height={1080}
@@ -47,7 +47,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S3Pipeline"
           component={S3Pipeline}
-          durationInFrames={195}
+          durationInFrames={255}
           fps={30}
           width={1920}
           height={1080}
@@ -55,7 +55,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S4Caliber"
           component={S4Caliber}
-          durationInFrames={225}
+          durationInFrames={255}
           fps={30}
           width={1920}
           height={1080}
@@ -63,7 +63,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S5Trace"
           component={S5Trace}
-          durationInFrames={195}
+          durationInFrames={240}
           fps={30}
           width={1920}
           height={1080}
@@ -71,7 +71,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S6CTA"
           component={S6CTA}
-          durationInFrames={240}
+          durationInFrames={330}
           fps={30}
           width={1920}
           height={1080}
@@ -81,7 +81,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="Main"
         component={Main}
-        durationInFrames={1185}
+        durationInFrames={1560}
         fps={30}
         width={1920}
         height={1080}
@@ -107,7 +107,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S1HookV"
           component={S1HookV}
-          durationInFrames={240}
+          durationInFrames={300}
           fps={30}
           width={1080}
           height={1920}
@@ -115,7 +115,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S2RevealV"
           component={S2RevealV}
-          durationInFrames={180}
+          durationInFrames={270}
           fps={30}
           width={1080}
           height={1920}
@@ -123,7 +123,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S3PipelineV"
           component={S3PipelineV}
-          durationInFrames={195}
+          durationInFrames={255}
           fps={30}
           width={1080}
           height={1920}
@@ -131,7 +131,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S4CaliberV"
           component={S4CaliberV}
-          durationInFrames={225}
+          durationInFrames={255}
           fps={30}
           width={1080}
           height={1920}
@@ -139,7 +139,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S5TraceV"
           component={S5TraceV}
-          durationInFrames={195}
+          durationInFrames={240}
           fps={30}
           width={1080}
           height={1920}
@@ -147,7 +147,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="S6CTAV"
           component={S6CTAV}
-          durationInFrames={240}
+          durationInFrames={330}
           fps={30}
           width={1080}
           height={1920}
@@ -157,7 +157,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="MainVertical"
         component={MainVertical}
-        durationInFrames={1185}
+        durationInFrames={1560}
         fps={30}
         width={1080}
         height={1920}
