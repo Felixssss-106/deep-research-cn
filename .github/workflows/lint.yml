@@ -1,0 +1,33 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  markdown:
+    name: markdownlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run markdownlint
+        run: npx -y markdownlint-cli2 "**/*.md" "#node_modules"
+
+  links:
+    name: link-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check links with lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # 外部链接失效只报告、不阻塞合并（中文站点经常间歇性 403/超时）
+          args: >-
+            --verbose --no-progress --max-retries 2
+            --exclude-path LICENSE
+            './**/*.md'
+          fail: false
