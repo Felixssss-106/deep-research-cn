@@ -13,25 +13,25 @@ Welcome to your Remotion project!
 
 ## Commands
 
-**Install Dependencies**
+### Install Dependencies
 
 ```console
 npm i
 ```
 
-**Start Preview**
+### Start Preview
 
 ```console
 npm run dev
 ```
 
-**Render video**
+### Render video
 
 ```console
 npx remotion render
 ```
 
-**Upgrade Remotion**
+### Upgrade Remotion
 
 ```console
 npx remotion upgrade

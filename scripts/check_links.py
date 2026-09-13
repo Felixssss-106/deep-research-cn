@@ -8,9 +8,14 @@
 行为：
 - 提取文件中所有 http(s) 链接并去重；
 - 并发发起 GET 请求（部分站点拒绝 HEAD）；
-- 2xx/3xx 视为可达；403/405/429 视为"反爬拦截"（需人工确认，不算失败）；
-  其余视为失效；
-- 任一链接失效时退出码为 1，方便接入 CI。
+- 结果分四类：
+    OK      2xx/3xx，可达；
+    BLOCKED 403/405/429，反爬拦截（需人工确认，不算失败）；
+    NET     连接超时、DNS 失败、网络不可达、地址受限被拦截（如解析到私网/
+            保留地址，疑为 DNS 污染或内网地址）等——"未能核实"。
+            既不算可达也不算失效；在受限/部分连通网络中很常见，不计入失败；
+    DEAD    HTTP 4xx/5xx 等明确失败——"失效"。
+- 仅当存在 DEAD 时退出码为 1，方便接入 CI；NET / BLOCKED 不影响退出码。
 
 安全边界（本工具会请求报告中的任意 URL，因此做了硬性限制）：
 - 仅允许 http/https 协议；
@@ -30,12 +35,17 @@ import socket
 import sys
 import urllib.error
 import urllib.request
+from collections import Counter
 
 URL_RE = re.compile(r"https?://[^\s<>\"']+")
 # URL 末尾常见的句子标点，属正文而非链接
 TRAILING_PUNCT = ".,;:!?\u3002\uff0c\uff1b\uff1a\uff01\uff1f\u3001"
 MAX_REDIRECTS = 5
 USER_AGENT = "Mozilla/5.0 (compatible; deep-research-cn link check)"
+
+
+class BlockedAddressError(ValueError):
+    """目标解析到私网/保留等受限地址（防 SSRF），无法核实——归入 NET 而非 DEAD。"""
 
 
 def _blocked_ip(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
@@ -50,7 +60,11 @@ def _blocked_ip(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
 
 
 def validate_url(url: str) -> str:
-    """校验协议与解析后的 IP，返回用于请求的 URL；不合规则抛 ValueError。"""
+    """校验协议与解析后的 IP，返回用于请求的 URL；不合规则抛异常。
+
+    - 协议/主机名不合法：抛 ValueError（属"链接本身有问题"）；
+    - 解析到受限地址：抛 BlockedAddressError（属"无法核实"）。
+    """
     parsed = urllib.request.urlparse(url)
     if parsed.scheme not in ("http", "https"):
         raise ValueError(f"仅允许 http/https 协议，拒绝 {parsed.scheme or '空'} 协议")
@@ -62,7 +76,7 @@ def validate_url(url: str) -> str:
     for info in infos:
         ip = ipaddress.ip_address(info[4][0])
         if _blocked_ip(ip):
-            raise ValueError(f"目标解析到受限地址 {ip}（私网/环回/保留地址），已拦截")
+            raise BlockedAddressError(f"目标解析到受限地址 {ip}（私网/环回/保留），已拦截")
     return url
 
 
@@ -90,10 +104,14 @@ def _fetch_once(url: str, timeout: float) -> tuple[int, str | None]:
 
 
 def check(url: str, timeout: float) -> tuple[str, str, str]:
-    """返回 (url, 状态标记, 说明)。标记为 OK / BLOCKED / DEAD。"""
+    """返回 (url, 状态标记, 说明)。标记为 OK / BLOCKED / NET / DEAD。"""
     try:
         current = validate_url(url)
-    except (ValueError, socket.gaierror) as e:
+    except BlockedAddressError as e:
+        return url, "NET", f"地址受限，未能核实: {e}"
+    except socket.gaierror as e:
+        return url, "NET", f"DNS 解析失败（域名不存在或网络受限）: {e}"
+    except ValueError as e:
         return url, "DEAD", f"URL 校验拒绝: {e}"
 
     try:
@@ -110,10 +128,15 @@ def check(url: str, timeout: float) -> tuple[str, str, str]:
         if e.code in (403, 405, 429):
             return url, "BLOCKED", f"HTTP {e.code}（反爬拦截，请人工确认）"
         return url, "DEAD", f"HTTP {e.code}"
-    except (ValueError, socket.gaierror) as e:
+    except socket.gaierror as e:
+        return url, "NET", f"DNS 解析失败（域名不存在或网络受限）: {e}"
+    except BlockedAddressError as e:
+        return url, "NET", f"重定向目标地址受限，未能核实: {e}"
+    except ValueError as e:
         return url, "DEAD", f"目标被安全校验拦截: {e}"
-    except Exception as e:  # 超时、DNS 失败、连接拒绝等
-        return url, "DEAD", f"{type(e).__name__}: {e}"
+    except Exception as e:
+        # 连接超时 / 网络不可达 / TLS 失败等：属于"未能核实"，不是失效证据
+        return url, "NET", f"{type(e).__name__}: {e}"
 
 
 def extract_urls(text: str) -> list[str]:
@@ -162,17 +185,21 @@ def main() -> int:
         for future in concurrent.futures.as_completed(futures):
             results.append(future.result())
 
-    order = {"OK": 0, "BLOCKED": 1, "DEAD": 2}
+    order = {"OK": 0, "BLOCKED": 1, "NET": 2, "DEAD": 3}
+    marks = {"OK": "✅", "BLOCKED": "⚠️ ", "NET": "🟡", "DEAD": "❌"}
     results.sort(key=lambda r: (order[r[1]], r[0]))
     for url, status, note in results:
-        mark = {"OK": "✅", "BLOCKED": "⚠️ ", "DEAD": "❌"}[status]
-        print(f"{mark} {status:<7} {note:<40} {url}")
+        print(f"{marks[status]} {status:<7} {note:<40} {url}")
 
-    dead = [r for r in results if r[1] == "DEAD"]
-    blocked = [r for r in results if r[1] == "BLOCKED"]
-    print(f"\n汇总：{len(results) - len(dead) - len(blocked)} 可达，"
-          f"{len(blocked)} 反爬拦截（人工确认），{len(dead)} 失效。")
-    return 1 if dead else 0
+    counts = Counter(r[1] for r in results)
+    print(f"\n汇总：{counts.get('OK', 0)} 可达，"
+          f"{counts.get('BLOCKED', 0)} 反爬拦截（人工确认），"
+          f"{counts.get('NET', 0)} 未能核实，"
+          f"{counts.get('DEAD', 0)} 失效。")
+    if counts.get("NET"):
+        print("提示：NET 项由本地网络受限或地址异常导致，不代表链接失效；"
+              "网络环境改善后可重跑。")
+    return 1 if counts.get("DEAD") else 0
 
 
 if __name__ == "__main__":
