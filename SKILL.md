@@ -1,6 +1,6 @@
 ---
 name: deep-research-cn
-description: 中文全网深度调研并产出结构化报告。当用户要求"调研"、"研究报告"、"全网查"、"查一下"、"市场分析"、"竞品分析"、"技术选型"、"看看大家怎么评价 X"等任务时使用。提供多源检索路由、交叉验证、口径标注、数据成表、来源清单的完整管线，并适配沙箱无直连网络的运行环境。Use for Chinese deep-research tasks such as market analysis, competitor research, and technology evaluation.
+description: 中文全网深度调研并产出结构化报告。当用户要求"调研"、"研究报告"、"全网查"、"查一下"、"市场分析"、"竞品分析"、"技术选型"、"看看大家怎么评价 X"等任务时使用。提供多源检索路由、交叉验证、口径标注、数据成表、来源清单的完整管线，并适配受限网络与无直连沙箱的运行环境。Use for Chinese deep-research tasks such as market analysis, competitor research, and technology evaluation.
 ---
 
 # 中文深度调研管线
@@ -36,8 +36,8 @@ description: 中文全网深度调研并产出结构化报告。当用户要求"
 - 每个子问题至少命中 2 个**相互独立**的来源（转载、引用同一原始报告不算独立）。
 - 边检索边记录：来源名、标题、日期、URL、关键数据原文。**不要凭记忆引用**。
 
-沙箱环境（Bash 无直连网络）的降级策略见 `references/sandbox-notes.md`：
-优先走 MCP 检索工具，网页读不动时用 Reader 类服务兜底，**绝不因为抓不到原文就放弃标注来源**。
+受限网络/沙箱环境的降级策略见 `references/sandbox-notes.md`：
+优先走 MCP 检索工具（搜索 + 抓取），Reader 类服务仅作备选（先探测可达性），**绝不因为抓不到原文就放弃标注来源**。
 
 ## 第三步：交叉验证
 
@@ -75,5 +75,5 @@ description: 中文全网深度调研并产出结构化报告。当用户要求"
 
 - 来源按首次引用顺序编号；同一来源多次引用复用同一编号。
 - 有网络和 Python 环境时，运行 `python scripts/check_links.py 报告.md`
-  批量核查链接可达性（纯标准库，无第三方依赖）。
-- 沙箱环境跳过此步，改为在交付说明中提醒读者"链接可达性未在线核查"。
+  批量核查链接可达性（纯标准库，无第三方依赖）。脚本区分“明确失效（DEAD）”与“未能核实（NET）”两种结果，**NET 不是死链**，转述时注意区分。
+- 完全无法联网时跳过此步，改为在交付说明中提醒读者"链接可达性未在线核查"。

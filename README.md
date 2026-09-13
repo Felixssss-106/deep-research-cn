@@ -74,7 +74,7 @@ deep-research-cn/
 ├── references/
 │   ├── search-routing.md     # 信息源五层分层 + 查询策略
 │   ├── verification.md       # 交叉验证 / 口径标注 / 反编造纪律
-│   └── sandbox-notes.md      # 沙箱无直连网络的降级策略
+│   └── sandbox-notes.md      # 受限网络/沙箱的降级策略
 ├── templates/                # 市场调研 / 竞品分析 / 技术选型
 ├── examples/                 # 真实数据样例报告
 └── scripts/check_links.py    # 来源链接批量核查（纯标准库）
@@ -84,7 +84,7 @@ deep-research-cn/
 
 ```bash
 python scripts/check_links.py 报告.md
-# ✅ OK / ⚠️ 反爬拦截（人工确认）/ ❌ 失效，失效时退出码 1
+# ✅ OK / ⚠️ 反爬拦截（人工确认）/ 🟡 NET 未能核实 / ❌ 失效（仅此类计入退出码 1）
 ```
 
 内置 SSRF 防护：仅允许 http/https、拦截私网/环回地址、重定向逐跳校验。
@@ -97,7 +97,7 @@ A：闭源 Deep Research 是黑盒，本技能是一条**你完全可见、可�
 
 **Q：需要联网吗？需要 API key 吗？**
 A：技能本身零依赖、零密钥。检索能力来自你 agent 已有的工具（内置搜索、MCP 检索服务等）。
-沙箱无直连网络也有降级路径（见 `references/sandbox-notes.md`）。
+沙箱（无直连或仅部分连通）也有降级路径（见 `references/sandbox-notes.md`）。
 
 **Q：产出质量怎么保证？**
 A：质量规则全部写在 `references/verification.md`（独立来源、口径标注、反编造纪律），
